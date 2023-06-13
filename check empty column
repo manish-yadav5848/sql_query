@@ -3,20 +3,24 @@ DECLARE
   columns_list VARCHAR2(2000) := '';
   column_name VARCHAR2(100);
   null_count NUMBER;
+  total_count NUMBER;
+BEGIN
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ' || table_name INTO total_count;
 
-  CURSOR column_cursor IS
+  FOR column_rec IN (
     SELECT column_name
     FROM all_tab_columns
     WHERE table_name = table_name
-    ORDER BY column_id;
+    ORDER BY column_id
+  )
+  LOOP
+    EXECUTE IMMEDIATE '
+      SELECT COUNT(*)
+      FROM ' || table_name || '
+      WHERE ' || column_rec.column_name || ' IS NULL'
+    INTO null_count;
 
-BEGIN
-  FOR column_rec IN column_cursor LOOP
-    EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ' || table_name || ' WHERE ' || column_rec.column_name || ' IS NULL'
-    INTO null_count
-    USING table_name;
-
-    IF null_count = (SELECT COUNT(*) FROM ' || table_name || ') THEN
+    IF null_count = total_count THEN
       columns_list := columns_list || column_rec.column_name || ', ';
     END IF;
   END LOOP;
