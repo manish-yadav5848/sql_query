@@ -1,28 +1,27 @@
 DECLARE
-table_name VARCHAR2(100) := 'employees';
-columns_list VARCHAR2(2000) := '';
-column_name VARCHAR2(100);
-null_count NUMBER;
+  table_name VARCHAR2(100) := 'employees';
+  columns_list VARCHAR2(2000) := '';
+  column_name VARCHAR2(100);
+  null_count NUMBER;
 
-CURSOR column_cursor IS
-SELECT column_name
-FROM all_tab_columns
-WHERE table_name = table_name
-ORDER BY column_id;
+  CURSOR column_cursor IS
+    SELECT column_name
+    FROM all_tab_columns
+    WHERE table_name = table_name
+    ORDER BY column_id;
 
 BEGIN
-FOR column_rec IN column_cursor LOOP
-EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ' || table_name || ' WHERE ' || column_rec.column_name || ' IS NULL'
-INTO null_count;
+  FOR column_rec IN column_cursor LOOP
+    EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ' || table_name || ' WHERE ' || column_rec.column_name || ' IS NULL'
+    INTO null_count;
 
-IF null_count = (SELECT COUNT(*) FROM ' || table_name || ') THEN
-columns_list := columns_list || column_rec.column_name || ', ';
-END IF;
-END LOOP;
+    IF null_count = (SELECT COUNT(*) FROM ' || table_name || ') THEN
+      columns_list := columns_list || column_rec.column_name || ', ';
+    END IF;
+  END LOOP;
 
-columns_list := RTRIM(columns_list, ', ');
+  columns_list := RTRIM(columns_list, ', ');
 
-DBMS_OUTPUT.PUT_LINE('Columns in table ' || table_name || ' with null values for all records: ' || columns_list);
+  DBMS_OUTPUT.PUT_LINE('Columns in table ' || table_name || ' with null values for all records: ' || columns_list);
 END;
 /
-has context menu
