@@ -1,19 +1,28 @@
--- Set the table name
 DECLARE
-  v_table_name VARCHAR2(100) := 'YourTableName'; -- Replace with the actual table name
-  v_column_list VARCHAR2(4000) := '';
-BEGIN
-  -- Loop through the columns in the table
-  FOR col IN (SELECT column_name FROM all_tab_columns WHERE table_name = v_table_name)
-  LOOP
-    -- Build the query to check for null or blank values in the column
-    EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ' || v_table_name || ' WHERE ' || col.column_name || ' IS NOT NULL AND TRIM(' || col.column_name || ') IS NOT NULL' INTO v_column_list;
+table_name VARCHAR2(100) := 'employees';
+columns_list VARCHAR2(2000) := '';
+column_name VARCHAR2(100);
+null_count NUMBER;
 
-    -- Check if the column has only null or blank values
-    IF v_column_list = 0 THEN
-      -- Print the column name
-      DBMS_OUTPUT.PUT_LINE(col.column_name);
-    END IF;
-  END LOOP;
+CURSOR column_cursor IS
+SELECT column_name
+FROM all_tab_columns
+WHERE table_name = table_name
+ORDER BY column_id;
+
+BEGIN
+FOR column_rec IN column_cursor LOOP
+EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ' || table_name || ' WHERE ' || column_rec.column_name || ' IS NULL'
+INTO null_count;
+
+IF null_count = (SELECT COUNT(*) FROM ' || table_name || ') THEN
+columns_list := columns_list || column_rec.column_name || ', ';
+END IF;
+END LOOP;
+
+columns_list := RTRIM(columns_list, ', ');
+
+DBMS_OUTPUT.PUT_LINE('Columns in table ' || table_name || ' with null values for all records: ' || columns_list);
 END;
 /
+has context menu
