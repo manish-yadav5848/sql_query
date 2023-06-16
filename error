@@ -13,4 +13,12 @@ CASE
     )
     ELSE part_age
   END AS converted_value
-
+CASE 
+    WHEN INSTR(part_age, '.') > 0 
+    THEN CONCAT(
+      TRIM(LEADING '0' FROM CAST(SUBSTRING_INDEX(part_age, '.', 1) AS INT)),
+      '.',
+      LPAD(CAST(SUBSTRING_INDEX(part_age, '.', -1) AS DECIMAL(10,2)), 2, '0')
+    )
+    ELSE TRIM(LEADING '0' FROM part_age)
+  END AS converted_value
