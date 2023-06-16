@@ -10,3 +10,17 @@ CASE
     THEN TRIM(TRAILING '.' FROM part_age)
     ELSE part_age
   END AS converted_value
+
+ CONCAT(
+    YEAR(date_of_birth) - YEAR(CURRENT_DATE()),
+    '.',
+    LPAD(
+      CASE 
+        WHEN MONTH(date_of_birth) > MONTH(CURRENT_DATE()) OR (MONTH(date_of_birth) = MONTH(CURRENT_DATE()) AND DAY(date_of_birth) > DAY(CURRENT_DATE()))
+        THEN MONTH(CURRENT_DATE()) + 12 - MONTH(date_of_birth) - 1
+        ELSE MONTH(CURRENT_DATE()) - MONTH(date_of_birth)
+      END,
+      2,
+      '0'
+    )
+  ) AS age
